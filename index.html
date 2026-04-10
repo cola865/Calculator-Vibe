@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* ... 保持原本的樣式 ... */
+        .dog-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1600');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+    
+        .calc-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-left: 10%;
+        }
+    
+        .calc-container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 300px;
+            text-align: center;
+        }
+    
+        .input-box { margin: 20px 0; }
+    
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #a1887f;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+    
+        .btn-submit {
+            background-color: #795548;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+    
+        .btn-submit:hover { background-color: #5d4037; }
+    
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+    
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+    
+        .result-info {
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 20px 0;
+            color: #333;
+        }
+    
+        .age-num {
+            color: #d84315;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    
+        .btn-close {
+            background: #eee;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="dog-bg"></div>
+
+<div class="calc-wrapper">
+    <div class="calc-container">
+        <h2 style="margin-top: 0; color: #4e342e;">🐾 小狗年齡計算</h2>
+        <p style="color: #6d4c41; font-weight: bold;">輸入狗狗的生日</p>
+        
+        <div class="input-box">
+            <input type="date" id="dogBirthday">
+        </div>
+        
+        <button id="calcSubmitBtn" class="btn-submit">確認輸入</button>
+    </div>
+</div>
+
+<div id="resultModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="margin-top: 0;">計算結果</h3>
+        <div id="modalBodyText" class="result-info"></div>
+        <button id="modalCloseBtn" class="btn-close">確定</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    const btn = document.getElementById('calcSubmitBtn');
+    const modal = document.getElementById('resultModal');
+    const close = document.getElementById('modalCloseBtn');
+    const birthInput = document.getElementById('dogBirthday');
+    const modalBody = document.getElementById('modalBodyText');
+
+    // --- 新增：讀取 localStorage ---
+    const savedBirthday = localStorage.getItem('lastDogBirthday');
+    if (savedBirthday) {
+        birthInput.value = savedBirthday;
+    }
+
+    btn.onclick = function() {
+        const bday = birthInput.value;
+        if (!bday) {
+            alert("請選擇狗狗的生日");
+            return;
+        }
+
+        // --- 新增：儲存至 localStorage ---
+        localStorage.setItem('lastDogBirthday', bday);
+
+        const birthDate = new Date(bday);
+        const now = new Date();
+        
+        let dogAge = (now - birthDate) / (1000 * 60 * 60 * 24 * 365.25);
+
+        if (dogAge <= 0) {
+            alert("生日日期不正確");
+            return;
+        }
+
+        let humanAge;
+        if (dogAge < 1) {
+            humanAge = dogAge * 31;
+        } else {
+            humanAge = 16 * Math.log(dogAge) + 31;
+        }
+
+        modalBody.innerHTML = `小狗目前狗年齡為 <span class="age-num">${dogAge.toFixed(1)}</span> 歲，<br>換算為人類年齡大約為 <span class="age-num">${Math.round(humanAge)}</span> 歲`;
+        modal.style.display = 'flex';
+    };
+
+    close.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = function(e) {
+        if (e.target == modal) modal.style.display = 'none';
+    };
+})();
+</script>
+</body>
+</html>
